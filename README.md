@@ -55,9 +55,9 @@ A comprehensive full-stack application for managing personal finances with incom
 ## Tech Stack
 
 ### Backend
-- **PHP 7.4+** - Server-side application
-- **MySQL 8.0+** - Database
-- **PDO** - Database abstraction
+- **Node.js** - Vercel serverless API
+- **PostgreSQL** - Database
+- **Prisma ORM** - Database schema and queries
 - **RESTful API** - Clean API design
 
 ### Frontend
@@ -122,9 +122,8 @@ Personal Finance Tracker/
 ## Installation
 
 ### Prerequisites
-- PHP 7.4 or higher
-- MySQL 8.0 or higher
-- Composer (optional)
+- Node.js 18 or higher
+- PostgreSQL database URL
 
 ### Setup
 
@@ -133,32 +132,32 @@ Personal Finance Tracker/
    cd "Personal Finance Tracker"
    ```
 
-2. **Configure environment**
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment**
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` with your database credentials:
-   ```
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_NAME=personal_finance_tracker
-   DB_USER=root
-   DB_PASS=your_password
+   Edit `.env` with your PostgreSQL connection string:
+   ```env
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/defaultdb?sslmode=require"
    ```
 
-3. **Create the database**
+4. **Create the database tables**
    ```bash
-   mysql -u root -p < backend/config/Database.sql
+   npm run db:push
    ```
 
-4. **Start PHP server**
+5. **Start the Vercel dev server**
    ```bash
-   # From project root
-   php -S localhost:8000
+   npm run dev
    ```
 
-5. **Access the application**
-   Open `http://localhost:8000/frontend/public/` in your browser
+6. **Access the application**
+   Open the local URL printed by Vercel.
 
 ## API Endpoints
 
@@ -290,9 +289,9 @@ Basic validation and error handling included. Extend with unit tests as needed.
 ## Troubleshooting
 
 ### Database Connection Error
-- Check MySQL is running: `mysql -u root -p`
-- Verify credentials in `.env`
-- Ensure database exists
+- Verify `DATABASE_URL` in `.env`
+- Confirm the PostgreSQL database exists and accepts SSL if your provider requires it
+- Run `npm run db:push` after changing the Prisma schema
 
 ### API Errors
 - Check PHP error logs
