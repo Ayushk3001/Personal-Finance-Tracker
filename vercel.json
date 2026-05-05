@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "backend/src/api/index.php": {
+      "runtime": "vercel-php@0.7.4",
+      "includeFiles": "backend/**"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/src/api/index.php"
+    },
+    {
+      "src": "/src/(.*)",
+      "dest": "/frontend/public/src/$1"
+    },
+    {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|json))",
+      "dest": "/frontend/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/public/index.html"
+    }
+  ]
+}
