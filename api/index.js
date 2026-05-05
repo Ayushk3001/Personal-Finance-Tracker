@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
     const segments = pathname.split("/").filter(Boolean);
 
     if (segments[0] === "auth") {
-      return handleAuth(req, res, segments);
+      return await handleAuth(req, res, segments);
     }
 
     const userId = await authenticate(req);
@@ -51,27 +51,31 @@ module.exports = async function handler(req, res) {
     }
 
     if (segments[0] === "transactions") {
-      return handleTransactions(req, res, segments, url.searchParams, userId);
+      return await handleTransactions(req, res, segments, url.searchParams, userId);
     }
 
     if (segments[0] === "categories") {
-      return handleCategories(req, res, segments, url.searchParams, userId);
+      return await handleCategories(req, res, segments, url.searchParams, userId);
     }
 
     if (segments[0] === "budgets") {
-      return handleBudgets(req, res, segments, userId);
+      return await handleBudgets(req, res, segments, userId);
     }
 
     if (segments[0] === "goals") {
-      return handleGoals(req, res, segments, userId);
+      return await handleGoals(req, res, segments, userId);
     }
 
     if (segments[0] === "dashboard") {
-      return handleDashboard(req, res, userId);
+      return await handleDashboard(req, res, userId);
     }
 
     return error(res, "Endpoint not found", 404);
   } catch (err) {
+    if (isUniqueConstraintError(err)) {
+      return error(res, uniqueConstraintMessage(err), 400);
+    }
+
     console.error(err);
     return error(res, "Server error", 500);
   }
@@ -91,6 +95,24 @@ function success(res, message = "Success", data = null, statusCode = 200) {
 
 function error(res, message = "An error occurred", statusCode = 400, errors = undefined) {
   return res.status(statusCode).json({ success: false, message, ...(errors ? { errors } : {}) });
+}
+
+function isUniqueConstraintError(err) {
+  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
+}
+
+function uniqueConstraintMessage(err) {
+  const target = Array.isArray(err.meta?.target) ? err.meta.target.join(", ") : "";
+
+  if (target.includes("username") || target.includes("email")) {
+    return "User already exists";
+  }
+
+  if (target.includes("user_id") && target.includes("name") && target.includes("type")) {
+    return "Category already exists";
+  }
+
+  return "Duplicate value already exists";
 }
 
 function toPlain(value) {
@@ -213,6 +235,11 @@ async function handleAuth(req, res, segments) {
 
 async function register(req, res) {
   const body = getBody(req);
+  body.username = typeof body.username === "string" ? body.username.trim() : body.username;
+  body.email = typeof body.email === "string" ? body.email.trim().toLowerCase() : body.email;
+  body.firstName = typeof body.firstName === "string" ? body.firstName.trim() : body.firstName;
+  body.lastName = typeof body.lastName === "string" ? body.lastName.trim() : body.lastName;
+
   const validationErrors = requiredFields(body, ["username", "email", "password", "firstName"]);
 
   if (body.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
@@ -769,6 +796,7 @@ async function handleGoals(req, res, segments, userId) {
         user_id: userId,
         name: body.name,
         target_amount: targetAmount,
+        current_amount: body.current_amount ? asNumber(body.current_amount) || 0 : 0,
         target_date: body.target_date ? asDate(body.target_date) : null,
         description: body.description || null,
         priority: body.priority || "medium",

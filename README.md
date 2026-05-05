@@ -153,7 +153,7 @@ Personal Finance Tracker/
 
 5. **Start the Vercel dev server**
    ```bash
-   npm run dev
+   npx vercel dev
    ```
 
 6. **Access the application**

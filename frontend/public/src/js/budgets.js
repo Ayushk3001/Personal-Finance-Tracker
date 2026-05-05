@@ -36,5 +36,44 @@ async function loadBudgets() {
 }
 
 function openAddBudgetModal() {
+    loadBudgetCategories();
+    document.getElementById('budget-start-date').valueAsDate = new Date();
     openModal('budget-modal');
 }
+
+async function loadBudgetCategories() {
+    const response = await API.getCategories('expense');
+    const select = document.getElementById('budget-category');
+    if (!select) return;
+
+    const categories = response?.data || [];
+    select.innerHTML = `
+        <option value="">All expense categories</option>
+        ${categories.map(category => `<option value="${category.id}">${category.name}</option>`).join('')}
+    `;
+}
+
+document.getElementById('budgetForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const categoryId = document.getElementById('budget-category').value;
+    const data = {
+        name: document.getElementById('budget-name').value.trim(),
+        limit_amount: parseFloat(document.getElementById('budget-limit').value),
+        period: document.getElementById('budget-period').value,
+        start_date: document.getElementById('budget-start-date').value,
+        category_id: categoryId || null
+    };
+
+    const response = await API.createBudget(data);
+
+    if (response?.success) {
+        document.getElementById('budgetForm').reset();
+        closeModal('budget-modal');
+        await loadBudgets();
+        await loadDashboardData();
+        alert('Budget added successfully!');
+    } else {
+        alert(response?.message || 'Failed to add budget');
+    }
+});

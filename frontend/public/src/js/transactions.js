@@ -95,6 +95,5 @@ document.getElementById('transactionForm')?.addEventListener('submit', async (e)
 });
 
 function formatDate(dateString) {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return formatDisplayDate(dateString);
 }

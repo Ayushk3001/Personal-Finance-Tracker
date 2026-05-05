@@ -27,7 +27,11 @@ class API {
                     logout();
                     return null;
                 }
-                throw new Error(`HTTP ${response.status}`);
+                const errorData = await response.json().catch(() => null);
+                return errorData || {
+                    success: false,
+                    message: `HTTP ${response.status}`
+                };
             }
 
             return await response.json();

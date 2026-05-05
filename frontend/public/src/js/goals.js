@@ -40,5 +40,31 @@ async function loadGoals() {
 }
 
 function openAddGoalModal() {
+    document.getElementById('goal-current').value = '0';
     openModal('goal-modal');
 }
+
+document.getElementById('goalForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+        name: document.getElementById('goal-name').value.trim(),
+        target_amount: parseFloat(document.getElementById('goal-target').value),
+        current_amount: parseFloat(document.getElementById('goal-current').value || '0'),
+        target_date: document.getElementById('goal-target-date').value || null,
+        priority: document.getElementById('goal-priority').value,
+        description: document.getElementById('goal-description').value.trim() || null
+    };
+
+    const response = await API.createGoal(data);
+
+    if (response?.success) {
+        document.getElementById('goalForm').reset();
+        closeModal('goal-modal');
+        await loadGoals();
+        await loadDashboardData();
+        alert('Savings goal added successfully!');
+    } else {
+        alert(response?.message || 'Failed to add savings goal');
+    }
+});

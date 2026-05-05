@@ -4,7 +4,6 @@
   "private": true,
   "description": "Personal finance tracker with a Prisma and PostgreSQL backend",
   "scripts": {
-    "dev": "npx vercel dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "prisma:generate": "prisma generate",

@@ -154,6 +154,8 @@ async function loadSavingsGoals() {
         
         const percentage = Math.round((totalCurrent / totalTarget) * 100);
         document.getElementById('savings-progress').textContent = `${percentage}%`;
+    } else {
+        document.getElementById('savings-progress').textContent = '0%';
     }
 }
 
@@ -167,6 +169,51 @@ function formatCurrency(amount) {
     return '₹' + num.toLocaleString('en-IN', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
+    });
+}
+
+function formatCurrency(amount) {
+    const num = parseFloat(amount);
+    const currency = localStorage.getItem('currency') || 'INR';
+    const locales = {
+        INR: 'en-IN',
+        USD: 'en-US',
+        EUR: 'en-IE',
+        GBP: 'en-GB',
+        CAD: 'en-CA'
+    };
+
+    return new Intl.NumberFormat(locales[currency] || 'en-IN', {
+        style: 'currency',
+        currency,
+        minimumFractionDigits: 2
+    }).format(isNaN(num) ? 0 : num);
+}
+
+function refreshCurrentView() {
+    loadDashboardData();
+
+    const activeView = document.querySelector('.view.active')?.id;
+    if (activeView === 'view-transactions') {
+        loadTransactions();
+    } else if (activeView === 'view-budgets') {
+        loadBudgets();
+    } else if (activeView === 'view-goals') {
+        loadGoals();
+    } else if (activeView === 'view-categories') {
+        loadCategories();
+    }
+}
+
+function formatDisplayDate(dateString) {
+    const timezone = localStorage.getItem('timezone') || 'Asia/Kolkata';
+
+    return new Date(dateString).toLocaleDateString(undefined, {
+        timeZone: timezone,
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
 }
 

@@ -21,6 +21,19 @@ document.addEventListener('click', (e) => {
 });
 
 // Settings form
+function loadSettings() {
+    const currency = localStorage.getItem('currency') || 'INR';
+    const timezone = localStorage.getItem('timezone') || 'Asia/Kolkata';
+    const currencySelect = document.getElementById('settings-currency');
+    const timezoneSelect = document.getElementById('settings-timezone');
+
+    if (currencySelect) currencySelect.value = currency;
+    if (timezoneSelect) timezoneSelect.value = timezone;
+
+    if (!localStorage.getItem('currency')) localStorage.setItem('currency', currency);
+    if (!localStorage.getItem('timezone')) localStorage.setItem('timezone', timezone);
+}
+
 document.getElementById('settingsForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
     
@@ -29,6 +42,9 @@ document.getElementById('settingsForm')?.addEventListener('submit', (e) => {
     
     localStorage.setItem('currency', currency);
     localStorage.setItem('timezone', timezone);
+    refreshCurrentView();
     
     alert('Settings saved successfully!');
 });
+
+loadSettings();
